@@ -17,7 +17,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const (
+var (
 	dbURL = "./milton.database"
 )
 
@@ -38,8 +38,15 @@ func Start() {
 				Name:    "list",
 				Aliases: []string{"l"},
 			},
+			&cli.StringFlag{
+				Name:    "database",
+				Aliases: []string{"db"},
+				Value:   "milton.database",
+			},
 		},
 		Action: func(ctx *cli.Context) error {
+			dbURL = ctx.String("database")
+
 			if len(ctx.String("url")) > 0 {
 				return Crawl(ctx.Context, ctx.String("url"))
 			}
@@ -75,12 +82,6 @@ func prettyJson(v interface{}) {
 
 func Crawl(ctx context.Context, url string) error {
 	db := db.New(&db.SqliteOpts{ConnString: dbURL})
-
-	// --- Local file debug
-	// dir, err := filepath.Abs(filepath.Dir("."))
-	// if err != nil {
-	// 	panic(err)
-	// }
 
 	c := colly.NewCollector()
 
